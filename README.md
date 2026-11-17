@@ -1,35 +1,43 @@
-# Atlas Monster Importer 0.1
+# Atlas Monster Importer 0.2
 
-Windows-GUI zum OCR-Auslesen gescannter Monsterhandbuch-PDFs und Erstellen von Obsidian-Markdown-Entwürfen.
+Windows-GUI-Prototyp für den lokalen OCR-Import gescannter Monsterhandbücher.
 
-## Aktueller Funktionsumfang
-- PDF-Seitenbereich wählbar; `Endseite = 0` verarbeitet alle Seiten.
-- OCR mit Tesseract (Deutsch + Englisch voreingestellt).
-- Erkennung möglicher Monster-Statblockseiten anhand von OCR-Schlüsselbegriffen.
-- Pro Kandidat eine Markdown-Entwurfsnotiz, OCR-Rohtext, PDF-Seitenreferenz und ein WebP-Bild der vollständigen Seite.
-- Optionaler SRD-Namensabgleich gegen eine vom Nutzer bereitgestellte CSV-Datei (Monstername in der ersten Spalte).
-- CSV-Importindex und README im Ausgabeordner.
+## Für den i7-9700K mit 32 GB RAM
 
-## Wichtige Einschränkungen dieser ersten Version
-Dies ist bewusst ein **OCR-/Sichtungsimporter**, noch kein verlustfreier Parser fertiger Atlas-VTT-Statblöcke. Die OCR-Ausgabe muss gegen das Buch geprüft werden. Die Erkennung kann Seiten übersehen oder falsche Kandidaten finden. Die Bilddatei zeigt die ganze Seite, nicht automatisch nur die Monsterillustration. Der SRD-Abgleich ist nur ein normalisierter Namensvergleich, keine semantische Dublettenprüfung. Es werden keine `statblock: true`-Notizen ausgegeben, damit unvollständige OCR-Daten nicht versehentlich als fertige Monster in Atlas VTT erscheinen.
+Voreinstellungen: 6 parallele OCR-Prozesse, 130 DPI Schnellscan und 300 DPI Detail-OCR. Die Werte lassen sich in der Oberfläche anpassen.
 
-## EXE bauen
-### Einfachster Weg: GitHub Actions
-1. Diesen Projektordner in ein neues GitHub-Repository hochladen.
-2. In GitHub `Actions` öffnen.
-3. Workflow `Build Windows EXE` auswählen und `Run workflow` starten.
-4. Nach erfolgreichem Lauf das Artefakt `AtlasMonsterImporter-Windows` herunterladen. Darin liegt `AtlasMonsterImporter.exe`.
+## Was 0.2 verbessert
 
-### Lokal auf Windows
-Voraussetzungen: Python 3.11 und Chocolatey. `build_windows.bat` doppelklicken. Die EXE liegt danach unter `dist\AtlasMonsterImporter.exe`.
+- Zweistufiger Ablauf: schnelle Erkennung aller Seiten, hohe Auflösung nur für Kandidatenseiten.
+- Bis zu 12 parallele Tesseract-Aufrufe (Standard: 6).
+- OCR-Cache: Bereits erkannte Seiten werden beim erneuten Start nicht nochmals gescannt.
+- Anhalten und Fortsetzen.
+- Vollständige Quellseiten als WebP-Bildreferenz.
+- Optionale CSV-Namensprüfung gegen eine SRD-Liste.
+- Alle Verarbeitung erfolgt lokal; keine Cloud/KI und keine Uploads.
 
-## Bedienung
+## Aktuelle Grenzen
+
+Dies ist weiterhin ein OCR-Sammel- und Vorbereitungswerkzeug. Es erstellt **noch keine fertigen Atlas-VTT-Statblöcke**. Die Ausgabe enthält OCR-Entwürfe und vollständige Quellseiten; die einzelnen Monsterillustrationen werden noch nicht automatisch isoliert. Die SRD-Prüfung ist nur ein normalisierter Namensvergleich, kein inhaltlicher Regel- oder Dublettenvergleich. OCR-Ergebnisse müssen kontrolliert werden.
+
+## Windows-EXE bauen
+
+Voraussetzungen: Windows 10/11, Python 3.11, Tesseract-OCR mit `deu` und `eng` Sprachdaten.
+
+1. Projekt entpacken.
+2. `build_windows.bat` starten.
+3. Die EXE liegt danach unter `dist\AtlasMonsterImporter.exe`.
+
+Alternativ kann der GitHub-Workflow `.github/workflows/build-windows.yml` manuell gestartet werden. Er erstellt ein EXE-Artefakt.
+
+## Nutzung
+
 1. EXE starten.
-2. Monsterhandbuch-PDF auswählen.
+2. PDF auswählen.
 3. Ausgabeordner auswählen.
-4. Optional SRD-CSV auswählen (Monstername in Spalte 1).
-5. Seitenbereich wählen; `Endseite 0` bedeutet alle Seiten.
-6. Import starten.
-7. Markdown-Entwürfe im Ordner `Monster-Entwuerfe` in Obsidian prüfen.
+4. Optional eine CSV mit Monster-Namen auswählen (Name muss in der ersten Spalte stehen).
+5. Import starten. Bei Unterbrechung einfach erneut starten; der Cache bleibt im Ausgabeordner erhalten.
 
-Für das 386-seitige Scan-PDF kann die OCR je nach Rechner etliche Minuten dauern. Ein niedriger DPI-Wert ist schneller; 200 DPI ist ein Startwert.
+## Datenschutz
+
+Die PDF, OCR-Texte und Bilder werden lokal verarbeitet und gespeichert. Die Anwendung enthält keine Online-KI-Anbindung.
